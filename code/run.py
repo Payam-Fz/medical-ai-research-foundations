@@ -36,7 +36,7 @@ _LEARNING_RATE = flags.DEFINE_float(
 )
 
 _WARMUP_EPOCHS = flags.DEFINE_float(
-    'warmup_epochs', 2, 'Number of epochs of warmup.'
+    'warmup_epochs', 10, 'Number of epochs of warmup.'
 )
 
 _WEIGHT_DECAY = flags.DEFINE_float(
@@ -48,7 +48,7 @@ _BATCH_NORM_DECAY = flags.DEFINE_float(
 )
 
 _TRAIN_BATCH_SIZE = flags.DEFINE_integer(
-    'train_batch_size', 64, 'Batch size for training.'
+    'train_batch_size', 512, 'Batch size for training.'
 )
 
 _TRAIN_SPLIT = flags.DEFINE_string(
@@ -56,7 +56,7 @@ _TRAIN_SPLIT = flags.DEFINE_string(
 )
 
 _TRAIN_EPOCHS = flags.DEFINE_integer(
-    'train_epochs', 10, 'Number of epochs to train for.'
+    'train_epochs', 100, 'Number of epochs to train for.'
 )
 
 _TRAIN_STEPS = flags.DEFINE_integer(
@@ -158,11 +158,11 @@ _TF_RUNNER = flags.DEFINE_string(
 )
 
 _MODEL_DIR = flags.DEFINE_string(
-    'model_dir', '..\..\out\models', 'Model directory for training.'
+    'model_dir', None, 'Model directory for training.'
 )
 
 _DATA_DIR = flags.DEFINE_string(
-    'data_dir', '..\..\data\mimic-cxr-jpg\physionet.org\files\mimic-cxr-jpg\2.0.0\files', 'Directory where dataset is stored.'
+    'data_dir', None, 'Directory where dataset is stored.'
 )
 
 _USE_TPU = flags.DEFINE_bool('use_tpu', True, 'Whether to run on TPU.')
