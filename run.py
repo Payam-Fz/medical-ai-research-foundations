@@ -48,7 +48,7 @@ _BATCH_NORM_DECAY = flags.DEFINE_float(
 )
 
 _TRAIN_BATCH_SIZE = flags.DEFINE_integer(
-    'train_batch_size', 512, 'Batch size for training.'
+    'train_batch_size', 1024, 'Batch size for training.'
 )
 
 _TRAIN_SPLIT = flags.DEFINE_string(
@@ -56,7 +56,7 @@ _TRAIN_SPLIT = flags.DEFINE_string(
 )
 
 _TRAIN_EPOCHS = flags.DEFINE_integer(
-    'train_epochs', 100, 'Number of epochs to train for.'
+    'train_epochs', 1000, 'Number of epochs to train for.'
 )
 
 _TRAIN_STEPS = flags.DEFINE_integer(
@@ -158,11 +158,11 @@ _TF_RUNNER = flags.DEFINE_string(
 )
 
 _MODEL_DIR = flags.DEFINE_string(
-    'model_dir', None, 'Model directory for training.'
+    'model_dir', '/ubc/cs/research/shield/projects/payamfz', 'Model directory for training.'
 )
 
 _DATA_DIR = flags.DEFINE_string(
-    'data_dir', None, 'Directory where dataset is stored.'
+    'data_dir', '/ubc/cs/research/shield/datasets/MIMIC-CXR-JPG', 'Directory where dataset is stored.'
 )
 
 _USE_TPU = flags.DEFINE_bool('use_tpu', True, 'Whether to run on TPU.')
