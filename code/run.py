@@ -19,11 +19,11 @@ import os
 
 from absl import app
 from absl import flags
-from . import data as data_lib
-from . import data_util
-from . import model as model_lib
-from . import model_util
-from . import resnet
+import data as data_lib
+import data_util
+import model as model_lib
+import model_util
+import resnet
 import tensorflow.compat.v1 as tf
 import tensorflow_datasets as tfds
 from tensorflow_estimator.compat.v1 import estimator as tf_estimator  # pylint: disable=g-deprecated-tf-checker
