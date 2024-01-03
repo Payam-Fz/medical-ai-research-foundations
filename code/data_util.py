@@ -19,7 +19,7 @@ import math
 
 from absl import flags
 import tensorflow.compat.v1 as tf
-from tensorflow_addons.image import transform_ops as transform_oparator
+import tensorflow_addons.image.transform_ops as transform_oparator
 
 
 def equalize_histogram_fn(image):

@@ -18,8 +18,8 @@ import functools
 from typing import Dict, Any, Optional, Callable
 
 from absl import flags
-import data_util
 import tensorflow.compat.v1 as tf
+import data_util
 
 FLAGS = flags.FLAGS
 
