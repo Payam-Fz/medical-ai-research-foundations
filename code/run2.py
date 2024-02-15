@@ -19,7 +19,7 @@ import os
 
 from absl import app
 from absl import flags
-import data as data_lib
+import data2 as data_lib
 import data_util
 import model as model_lib
 import model_util
@@ -28,6 +28,8 @@ import tensorflow.compat.v1 as tf
 import tensorflow_datasets as tfds
 from tensorflow_estimator.compat.v1 import estimator as tf_estimator  # pylint: disable=g-deprecated-tf-checker
 import tensorflow_hub as hub
+
+from loader.mimic_cxr_jpg_loader import MIMIC_CXR_JPG_Loader
 
 FLAGS = flags.FLAGS
 
@@ -93,7 +95,7 @@ _EVAL_SPLIT = flags.DEFINE_string(
 )
 
 _DATASET = flags.DEFINE_string(
-    'dataset', 'cifar10', 'Name of a dataset to load from a TFDS builder.'
+    'dataset', 'mimic_cxr', 'Name of a dataset to load from a TFDS builder.'
 )
 
 _CACHE_DATASET = flags.DEFINE_bool(
@@ -305,6 +307,18 @@ _MULTI_INSTANCE = flags.DEFINE_boolean(
 )
 
 
+#------------------- SETUP -------------------#
+
+project_folder = os.getcwd()
+if project_folder.endswith('/job'):
+  project_folder = project_folder[:-4]
+os.makedirs(project_folder + '/out', exist_ok=True)
+os.makedirs(project_folder + '/out/figs', exist_ok=True)
+os.makedirs(project_folder + '/out/models', exist_ok=True)
+
+
+
+
 def build_hub_module(model, num_classes, global_step, checkpoint_path):
   """Create TF-Hub module."""
 
@@ -405,7 +419,7 @@ def build_hub_module(model, num_classes, global_step, checkpoint_path):
     spec = hub.create_module_spec(
         module_fn_simclr, tags_and_args, drop_collections
     )
-  hub_export_dir = os.path.join(_MODEL_DIR.value, 'hub')
+  hub_export_dir = os.path.join(project_folder, _MODEL_DIR.value, 'hub')
   checkpoint_export_dir = os.path.join(hub_export_dir, str(global_step))
   if tf.io.gfile.exists(checkpoint_export_dir):
     # Do not save if checkpoint already saved.
@@ -484,12 +498,12 @@ def main(argv):
   if _TRAIN_SUMMARY_STEPS.value > 0:
     tf.config.set_soft_device_placement(True)
 
-  # Use TFDS builder
-  builder = tfds.builder(_DATASET.value, data_dir=_DATA_DIR.value)
-  builder.download_and_prepare()
-  num_train_examples = builder.info.splits[_TRAIN_SPLIT.value].num_examples
-  num_eval_examples = builder.info.splits[_EVAL_SPLIT.value].num_examples
-  num_classes = builder.info.features['label'].num_classes
+  # Use custom TFDS builder
+  
+  builder = MIMIC_CXR_JPG_Loader({'train': 5000, 'validate': 200, 'test': 10}, project_folder)
+  num_train_examples = builder.metadata['split_size']['train']
+  num_eval_examples = builder.metadata['split_size']['validate']
+  num_classes = builder.metadata['num_classes']
 
   train_steps = model_util.get_train_steps(num_train_examples)
   eval_steps = int(math.ceil(num_eval_examples / _EVAL_BATCH_SIZE.value))
@@ -574,9 +588,9 @@ def main(argv):
       try:
         result = perform_evaluation(
             estimator=estimator,
-            input_fn=data_lib.build_input_fn_for_builder(
+            input_fn=data_lib.build_input_fn_for_mimic(
                 builder,
-                False,
+                is_training=False,
                 cache_dataset=_CACHE_DATASET.value,
                 image_size=_IMAGE_SIZE.value,
                 color_jitter_strength=_COLOR_JITTER_STRENGTH.value,
@@ -594,9 +608,9 @@ def main(argv):
       if result['global_step'] >= train_steps:
         return
   else:  # Pretrain mode
-    train_input_fn = data_lib.build_input_fn_for_builder(
+    train_input_fn = data_lib.build_input_fn_for_mimic(
         builder,
-        True,
+        is_training=True,
         cache_dataset=_CACHE_DATASET.value,
         image_size=_IMAGE_SIZE.value,
         color_jitter_strength=_COLOR_JITTER_STRENGTH.value,
@@ -607,7 +621,7 @@ def main(argv):
     if _MODE.value == 'train_then_eval':
       perform_evaluation(
           estimator=estimator,
-          input_fn=data_lib.build_input_fn_for_builder(
+          input_fn=data_lib.build_input_fn_for_mimic(
               builder,
               False,
               cache_dataset=_CACHE_DATASET.value,
